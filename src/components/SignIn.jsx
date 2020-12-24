@@ -3,6 +3,7 @@ import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import Text from './Text';
 import FormikTextInput from './FormikTextInput';
 import { Formik } from 'formik';
+import useSignIn from '../hooks/useSignIn';
 import theme from '../theme';
 import * as yup from 'yup';
 
@@ -19,8 +20,7 @@ const styles = StyleSheet.create({
     height: 40,
     margin: 10,
     padding: 10,
-    backgroundColor: theme.colors.primary,
-    textAlign: 'center'
+    backgroundColor: theme.colors.primary
   },
   buttonText: {
     color: 'white'
@@ -56,8 +56,17 @@ const validationSchema = yup.object().shape({
 });
 
 const SignIn = () => {
-  const onSubmit = values => {
-    console.log(values);
+  const [signIn] = useSignIn();
+
+  const onSubmit = async (values) => {
+    const { username, password } = values;
+
+    try {
+      const data = await signIn({ username, password });
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
