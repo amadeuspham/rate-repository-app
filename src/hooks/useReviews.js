@@ -41,7 +41,7 @@ const useReviews = (variables) => {
     });
   };
 
-  let reviews = {};
+  let reviews = [];
   if (data && !error) {
     reviews = data.repository.reviews.edges.map(edge => edge.node);
   }

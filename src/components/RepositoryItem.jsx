@@ -1,5 +1,4 @@
 import React from 'react';
-import Constants from 'expo-constants';
 import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import Text from './Text';
 import theme from '../theme';
@@ -10,9 +9,6 @@ import {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: Constants.statusBarHeight,
-    flexGrow: 1,
-    flexShrink: 1,
     backgroundColor: 'white',
     padding: 10
   },

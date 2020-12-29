@@ -15,13 +15,13 @@ const styles = StyleSheet.create({
   },
   reviewContainer: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    backgroundColor: 'white',
+    padding: 20,
   },
   reviewView: {
-    padding: 20,
     display: 'flex',
     flexDirection: 'row',
-    backgroundColor: 'white'
   },
   rating: {
     width: 56,
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     fontSize: 20
   }, 
   reviewContent: {
-    marginLeft: 5
+    marginLeft: 10
   },
   username: {
     marginVertical: 2,
@@ -46,13 +46,12 @@ const styles = StyleSheet.create({
   date: {
     marginVertical: 2,
   },
-  text : {
-    marginTop: 2
+  textArea: {
+    marginLeft: 70
   },
   actionRow: {
     display: 'flex',
     flexDirection: 'row',
-    backgroundColor: 'white'
   },
   viewButton: {
     flexGrow: 1,
@@ -100,11 +99,11 @@ const ActionRow = ({reviewId, repositoryId}) => {
       "Are you sure you want to delete this review?",
       [
         {
-          text: "CANCEL",
+          text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel"
         },
-        { text: "DELETE", onPress: async () => await deleteReview(reviewId) }
+        { text: "Delete", onPress: async () => await deleteReview(reviewId) }
       ],
       { cancelable: false }
     );
@@ -139,8 +138,10 @@ const ReviewItem = ({ review, userReviewsMode }) => {
             {userReviewsMode ? repoAddress : user.username}
           </Text>
           <Text style={styles.date} color={'textSecondary'} fontSize={'subheading'}>{format(new Date(createdAt), 'dd/MM/yyyy')}</Text>
-          <Text style={styles.text}>{text}</Text>
         </View>
+      </View>
+      <View style={styles.textArea}>
+        <Text style={styles.text}>{text}</Text>
       </View>
       {userReviewsMode && <ActionRow repositoryId={repositoryId} reviewId={id}/>}
     </View>

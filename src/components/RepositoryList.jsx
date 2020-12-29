@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
-import { FlatList, View, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { FlatList, View, StyleSheet } from 'react-native';
 import RepositoryItem from './RepositoryItem';
-import Text from './Text';
 import useRepositories from '../hooks/useRepositories';
 import RNPickerSelect from 'react-native-picker-select';
 import { Searchbar } from 'react-native-paper';
@@ -21,46 +20,35 @@ const styles = StyleSheet.create({
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-const SortingModal = ({showModal, setShowModal, setOrderBy, setOrderDirection}) => {
+const SortingButton = ({setOrderBy, setOrderDirection}) => {
   const setNewSorting = (value) => {
     const [newOrderBy, newOrderDirection] = value.split('/');
     setOrderBy(newOrderBy);
     setOrderDirection(newOrderDirection);
   };
 
+  const emptyPlaceholder = {};
+
   return (
-    <Modal visible={showModal} onRequestClose={() => setShowModal(false)}>
-      <RNPickerSelect
-        onValueChange={(value) => {
-          setNewSorting(value);
-        }}
-        items={[
-          { label: 'Latest repositories', value: 'CREATED_AT/DESC' },
-          { label: 'Highest rated repositories', value: 'RATING_AVERAGE/DESC' },
-          { label: 'Lowest rated repositories', value: 'RATING_AVERAGE/ASC' },
-        ]}
-      />
-    </Modal>
+    <RNPickerSelect
+      placeholder={emptyPlaceholder}
+      onValueChange={(value) => {
+        setNewSorting(value);
+      }}
+      items={[
+        { label: 'Latest repositories', value: 'CREATED_AT/DESC' },
+        { label: 'Highest rated repositories', value: 'RATING_AVERAGE/DESC' },
+        { label: 'Lowest rated repositories', value: 'RATING_AVERAGE/ASC' },
+      ]}
+    />
   );
 };
 
-const RepoListHeader = ({orderBy, orderDirection, searchKeyword, setSearchKeyword, setShowModal}) => {
-  const sortingOptions = {
-    'CREATED_AT': {
-      'DESC': 'Latest repositories'
-    },
-    'RATING_AVERAGE': {
-      'ASC': 'Lowest rated repositories',
-      'DESC': 'Highest rated repositories'
-    },
-  };
-
+const RepoListHeader = ({setOrderBy, setOrderDirection, searchKeyword, setSearchKeyword}) => {
   return (
     <View style={styles.header}>
       <View style={styles.sortingButton}>
-        <TouchableOpacity onPress={() => setShowModal(true)}>
-          <Text>{sortingOptions[orderBy][orderDirection]}</Text>
-        </TouchableOpacity>
+        <SortingButton setOrderBy={setOrderBy} setOrderDirection={setOrderDirection}/>
       </View>
       <Searchbar
         placeholder="Search repo name or owner name"
@@ -73,7 +61,7 @@ const RepoListHeader = ({orderBy, orderDirection, searchKeyword, setSearchKeywor
 
 export class RepositoryListContainer extends React.Component {
   renderHeader = () => {
-    const {orderBy, orderDirection, setOrderBy, searchKeyword, setOrderDirection, setShowModal, setSearchKeyword } = this.props;
+    const {orderBy, orderDirection, setOrderBy, searchKeyword, setOrderDirection, setSearchKeyword } = this.props;
   
     return (
       <RepoListHeader 
@@ -82,14 +70,13 @@ export class RepositoryListContainer extends React.Component {
         searchKeyword={searchKeyword}
         setOrderBy={setOrderBy} 
         setOrderDirection={setOrderDirection}
-        setShowModal={setShowModal}
         setSearchKeyword={setSearchKeyword}
       />
     );
   };
 
   render() {
-    const { repositories, showModal, setOrderBy, setOrderDirection, setShowModal, onEndReach } = this.props;
+    const { repositories, setOrderBy, setOrderDirection, onEndReach } = this.props;
 
     const renderRepo = (repo) => (
       <RepositoryItem repoInfo={repo.item} />
@@ -97,7 +84,7 @@ export class RepositoryListContainer extends React.Component {
 
     return (
     <View>
-      <SortingModal showModal={showModal} setShowModal={setShowModal} setOrderBy={setOrderBy} setOrderDirection={setOrderDirection}/>
+      <SortingButton setOrderBy={setOrderBy} setOrderDirection={setOrderDirection}/>
       <FlatList
         data={repositories}
         ItemSeparatorComponent={ItemSeparator}
@@ -117,7 +104,6 @@ const RepositoryList = () => {
   const [orderDirection, setOrderDirection] = useState('DESC');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [ debouncedKeyword ] = useDebounce(searchKeyword, 500);
-  const [showModal, setShowModal] = useState(false);
   const { repositories, fetchMore } = useRepositories({
     orderBy, 
     orderDirection, 
@@ -134,10 +120,8 @@ const RepositoryList = () => {
       repositories={repositories} 
       orderBy={orderBy} 
       orderDirection={orderDirection} 
-      showModal={showModal}
       setOrderBy={setOrderBy} 
       setOrderDirection={setOrderDirection}
-      setShowModal={setShowModal}
       searchKeyword={searchKeyword}
       setSearchKeyword={setSearchKeyword}
       onEndReach={onEndReach}
