@@ -1,9 +1,12 @@
 import React from 'react';
 import Constants from 'expo-constants';
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import Text from './Text';
-
 import theme from '../theme';
+import * as WebBrowser from 'expo-web-browser';
+import {
+  useHistory
+} from "react-router-native";
 
 const styles = StyleSheet.create({
   container: {
@@ -45,61 +48,71 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center'
   },
+  button: {
+    height: 40,
+    margin: 10,
+    padding: 10,
+    backgroundColor: theme.colors.primary,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white'
+  }
 });
 
-const RepoIntro = ({fullName, description, language, ownerAvatarUrl}) => {
-  const RepoHeader = ({fullName, description, ownerAvatarUrl}) => {
+const RepoIntro = ({id, fullName, description, language, ownerAvatarUrl}) => {
+  const RepoHeader = ({id, fullName, description, ownerAvatarUrl}) => {
     return (
       <View style={styles.repoHeader}>
         <Image style={styles.avatar} source={{uri: ownerAvatarUrl}}/>
-        <RepoIntroText fullName={fullName} description={description}/>
+        <RepoIntroText id={id} fullName={fullName} description={description}/>
       </View>
     );
   };
 
-  const RepoIntroText = ({fullName, description}) => {
+  const RepoIntroText = ({id, fullName, description}) => {
     return (
       <View style={styles.retroText}>
-        <Text fontWeight={'bold'} fontSize={'subheading'}>{fullName}</Text>
-        <Text color={'textSecondary'} fontSize={'subheading'}>{description}</Text>
+        <Text fontWeight={'bold'} fontSize={'subheading'} testID={`${id}_fullName`}>{fullName}</Text>
+        <Text color={'textSecondary'} fontSize={'subheading'} testID={`${id}_description`}>{description}</Text>
       </View>
     );
   };
 
-  const RepoLanguageRow = ({language}) => {
+  const RepoLanguageRow = ({id, language}) => {
     return (
       <View style={styles.repoHeader}>
         <View styles={styles.avatar}/>
-        <RepoLanguage language={language}/>
+        <RepoLanguage id={id} language={language}/>
       </View>
     );
   };
 
-  const RepoLanguage = ({language}) => {
+  const RepoLanguage = ({id, language}) => {
     return (
       <View style={styles.languageTag}>
-        <Text style={styles.languageText}>{language}</Text>
+        <Text style={styles.languageText} testID={`${id}_language`}>{language}</Text>
       </View>
     );
   };
 
   return (
     <View>
-      <RepoHeader fullName={fullName} description={description} ownerAvatarUrl={ownerAvatarUrl}/>
-      <RepoLanguageRow language={language}/>
+      <RepoHeader id={id} fullName={fullName} description={description} ownerAvatarUrl={ownerAvatarUrl}/>
+      <RepoLanguageRow id={id} language={language}/>
     </View>
   );
 };
 
-const RepoStatistics = ({stars, forks, reviews, ratings}) => {
+const RepoStatistics = ({id, stars, forks, reviews, ratings}) => {
   const kFormatter = (num) => {
     return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num);
   };
 
-  const StatsBlock = ({name, number}) => {
+  const StatsBlock = ({id, name, number}) => {
     return (
       <View style={styles.statsBlock}>
-        <Text color={'textSecondary'}>{kFormatter(number)}</Text>
+        <Text color={'textSecondary'} testID={`${id}_${name}`}>{kFormatter(number)}</Text>
         <Text fontWeight={'bold'}>{name}</Text>
       </View>
     );
@@ -107,25 +120,51 @@ const RepoStatistics = ({stars, forks, reviews, ratings}) => {
 
   return (
     <View style={styles.statisticsBar}>
-      <StatsBlock name={'Stars'} number={stars}/>
-      <StatsBlock name={'Forks'} number={forks}/>
-      <StatsBlock name={'Reviews'} number={reviews}/>
-      <StatsBlock name={'Ratings'} number={ratings}/>
+      <StatsBlock id={id} name={'Stars'} number={stars}/>
+      <StatsBlock id={id} name={'Forks'} number={forks}/>
+      <StatsBlock id={id} name={'Reviews'} number={reviews}/>
+      <StatsBlock id={id} name={'Ratings'} number={ratings}/>
     </View>
   );
 };
 
-const RepositoryItem = ({repoInfo}) => {
+const RepositoryItem = ({repoInfo, singleView}) => {
+  let history = useHistory();
+
+  const {id, fullName, description, language, ownerAvatarUrl, stargazersCount, forksCount, reviewCount, ratingAverage, url} = repoInfo;
+
+  const onItemClicked = (id) => {
+    history.push(`/repositories/${id}`);
+  };
+
+  const onButtonClicked = (url) => {
+    WebBrowser.openBrowserAsync(url);
+  };
+
   return (
-    <View style={styles.container}>
-      <RepoIntro fullName={repoInfo.item.fullName} description={repoInfo.item.description} language={repoInfo.item.language} ownerAvatarUrl={repoInfo.item.ownerAvatarUrl}/>
-      <RepoStatistics 
-        stars={repoInfo.item.stargazersCount} 
-        forks={repoInfo.item.forksCount} 
-        reviews={repoInfo.item.reviewCount} 
-        ratings={repoInfo.item.ratingAverage}
-      />
-    </View>
+    <TouchableOpacity onPress={() => onItemClicked(id)}>
+      <View style={styles.container}>
+        <RepoIntro 
+          id={id} 
+          fullName={fullName} 
+          description={description} 
+          language={language} 
+          ownerAvatarUrl={ownerAvatarUrl}
+        />
+        <RepoStatistics 
+          id={id}
+          stars={stargazersCount} 
+          forks={forksCount} 
+          reviews={reviewCount} 
+          ratings={ratingAverage}
+        />
+        {singleView && <TouchableOpacity onPress={() => onButtonClicked(url)}>
+          <View style={styles.button}>
+            <Text style={styles.buttonText}>Open in GitHub</Text>
+          </View>
+        </TouchableOpacity>}
+      </View>
+    </TouchableOpacity>
   );
 };
 

@@ -69,8 +69,11 @@ const AppBar = () => {
     <View style={styles.container}>
       <ScrollView horizontal contentContainerStyle={styles.bar}>
         <Link to="/" component={AppBarTab}>Repositories</Link>
-        {signedIn && <AppBarTab to="/signin" onPress={signOut}>Sign out</AppBarTab>}
+        {signedIn && <Link to="/createReview" component={AppBarTab}>Create a review</Link>}
+        {signedIn && <Link to="/userReviews" component={AppBarTab}>My reviews</Link>}
+        {signedIn && <AppBarTab onPress={signOut}>Sign out</AppBarTab>}
         {!signedIn && <Link to="/signin" component={AppBarTab}>Sign in</Link>}
+        {!signedIn && <Link to="/signup" component={AppBarTab}>Sign up</Link>}
       </ScrollView>
     </View>
   );     
