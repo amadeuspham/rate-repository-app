@@ -5,6 +5,7 @@ import useRepositories from '../hooks/useRepositories';
 import RNPickerSelect from 'react-native-picker-select';
 import { Searchbar } from 'react-native-paper';
 import { useDebounce } from 'use-debounce';
+import { Ionicons } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
   separator: {
@@ -40,6 +41,9 @@ const SortingButton = ({setOrderBy, setOrderDirection}) => {
         { label: 'Highest rated repositories', value: 'RATING_AVERAGE/DESC' },
         { label: 'Lowest rated repositories', value: 'RATING_AVERAGE/ASC' },
       ]}
+      Icon={() => {
+        return <Ionicons name="md-arrow-down" size={18} color="gray" />;
+      }}
     />
   );
 };
@@ -76,7 +80,7 @@ export class RepositoryListContainer extends React.Component {
   };
 
   render() {
-    const { repositories, setOrderBy, setOrderDirection, onEndReach } = this.props;
+    const { repositories, onEndReach } = this.props;
 
     const renderRepo = (repo) => (
       <RepositoryItem repoInfo={repo.item} />
@@ -84,7 +88,6 @@ export class RepositoryListContainer extends React.Component {
 
     return (
     <View>
-      <SortingButton setOrderBy={setOrderBy} setOrderDirection={setOrderDirection}/>
       <FlatList
         data={repositories}
         ItemSeparatorComponent={ItemSeparator}
